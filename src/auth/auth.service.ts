@@ -22,7 +22,7 @@ export class AuthService {
 
         const { password, ...rest } = createUserDto;
         const newUser = await this.usersService.create({
-            ...rest,
+            ...createUserDto,
             passwordHash,
         });
 
