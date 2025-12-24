@@ -28,5 +28,25 @@ export class AuthService {
         return { id: newUser.id, email: newUser.email };
     }
 
+        // login (sign in)
+    // goal: check/compare credential, return Token
+    async login(email: string, pass: string) {
+        const user = await this.usersService.findOneByEmail(email);
+        if (!user) {
+            throw new UnauthorizedException('User not found'); // 401 error
+        }
+
+        // compare password (we hash the incomping password and compare it with the hashedpassword)
+        const isMatch = await bcrypt.compare(pass, user.passwordHash);
+        if (!isMatch) {
+            throw new UnauthorizedException('Wrong password');
+        }
+        // generate token
+        const payload = { sub: user.id, email: user.email };
+        return {
+            access_token: await this.jwtService.signAsync(payload),
+        }
+
+    }
 
 }
