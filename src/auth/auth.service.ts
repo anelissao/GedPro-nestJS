@@ -14,24 +14,25 @@ export class AuthService {
     // register (sign up)
     // goal: take a password, hash it, then save it
 
-    async register(CreateUserDto: CreateUserDto) {
+    async register(createUserDto: CreateUserDto) {
         // using salt to use random data to make the hash unique even if 2 users have the same password
         const salt = await bcrypt.genSalt();
         
-        const passwordHash = await bcrypt.hash(CreateUserDto.password, salt);
+        const passwordHash = await bcrypt.hash(createUserDto.password, salt);
 
+        const { password, ...rest } = createUserDto;
         const newUser = await this.usersService.create({
-            ...CreateUserDto,
+            ...rest,
             passwordHash,
         });
 
-        return { id: newUser.id, email: newUser.email };
+        return newUser;
     }
 
-        // login (sign in)
+    // login (sign in)
     // goal: check/compare credential, return Token
     async login(email: string, pass: string) {
-        const user = await this.usersService.findOneByEmail(email);
+        const user = await this.usersService.findOne(email);
         if (!user) {
             throw new UnauthorizedException('User not found'); // 401 error
         }
